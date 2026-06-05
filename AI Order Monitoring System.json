@@ -1,0 +1,167 @@
+{
+  "name": "AI Order Monitoring System",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "61c36c3b-cc58-44bc-9c6e-f092cd201edb",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0c878713-7cfe-4974-90c5-1a9dac406047",
+              "name": "order",
+              "value": "Customer ordered 12 shampoos, 8 repair masks and 15 styling sprays. Delivery needed before Friday. Repair mask stock is low.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7eaa3ec6-f510-4de2-8ec1-363c261efed2",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {
+          "summarizationMethodAndPrompts": {
+            "values": {
+              "combineMapPrompt": "You are an operations assistant for a beauty company.\n\nAnalyze the customer order and produce a structured report.\n\nReturn:\n\n1. Order summary (short)\n2. Urgency level (Low / Medium / High)\n3. Urgency score (1–10)\n4. Reason for urgency\n5. Stock risks (if any)\n\nRules for urgency:\n\nHIGH (8–10): urgent delivery, deadline mentioned, low stock, bulk order\nMEDIUM (4–7): normal order but some attention needed\nLOW (1–3): regular order, no urgency signals\n\nOrder:\n{text}\n\nFormat output clearly with headings.",
+              "prompt": "You are an operations assistant for a beauty company.\n\nAnalyze the customer order and produce a structured report.\n\nReturn:\n\n1. Order summary (short)\n2. Urgency level (Low / Medium / High)\n3. Urgency score (1–10)\n4. Reason for urgency\n5. Stock risks (if any)\n\nRules for urgency:\n\nHIGH (8–10): urgent delivery, deadline mentioned, low stock, bulk order\nMEDIUM (4–7): normal order but some attention needed\nLOW (1–3): regular order, no urgency signals\n\nOrder:\n{text}\n\nFormat output clearly with headings."
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "typeVersion": 2.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "f47e5a60-4604-404a-8664-1525f90cf02f",
+      "name": "Summarization Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        208
+      ],
+      "id": "b5c816db-c314-4f19-9b76-bb2a60f02683",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "3aFQkRjg0MfWKUKN",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "5197271529",
+        "text": "🚨 NEW ORDER ALERT  AI workflow detected an urgent order.  Please review inventory and delivery timing.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        0
+      ],
+      "id": "2be7383b-6dc9-4d34-8c94-35e185e03be2",
+      "name": "Send a text message",
+      "webhookId": "08c1e2b5-a165-4b0f-a8b0-53a71a87996d",
+      "credentials": {
+        "telegramApi": {
+          "id": "82xll7Dgd1PdFTPe",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Summarization Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarization Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarization Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f09c2c98-a3ad-47db-adeb-1d4c74631c3a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "306cb364d30365275a414e71e92109bb5de4f9406e780fe0c644d5f4e7d82efc"
+  },
+  "nodeGroups": [],
+  "id": "QTjVoktowArZC7UG",
+  "tags": []
+}
